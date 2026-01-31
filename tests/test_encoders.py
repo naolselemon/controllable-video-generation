@@ -28,7 +28,7 @@ clear_gpu_memory()
 
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
-from models.encoders import DepthEncoder, SketchEncoder, MotionEncoder, StyleEncoder, MaskEncoder
+from models.encoders import DepthEncoder, SketchEncoder, MotionEncoder, StyleEncoder, MaskEncoder, NormalEncoder
 
 
 
@@ -159,6 +159,12 @@ class EncoderTester:
         self.test_encoder(
             MotionEncoder,
             input_shape=(B, 2, T, H, W),
+            expected_output_shape=(B, 256, T, H_out, W_out),
+            test_backward=False
+        )
+        self.test_encoder(
+            NormalEncoder,
+            input_shape=(B, 3, T, H, W),
             expected_output_shape=(B, 256, T, H_out, W_out),
             test_backward=False
         )
