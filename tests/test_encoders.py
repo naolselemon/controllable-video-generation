@@ -28,7 +28,7 @@ clear_gpu_memory()
 
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
-from models.encoders import DepthEncoder, SketchEncoder, MotionEncoder, StyleEncoder, MaskEncoder
+from models.encoders import DepthEncoder, SketchEncoder, MotionEncoder, StyleEncoder, MaskEncoder, SemanticSegmentationEncoder
 
 
 class EncoderTester:
@@ -69,7 +69,16 @@ class EncoderTester:
             
           
             print(f"\n  Creating test input...")
-            x = torch.randn(*input_shape, device=self.device, dtype=torch.float32)
+            if encoder_class.__name__ == "SemanticSegmentationEncoder":
+                x = torch.randint(
+                    low=0,
+                    high=150,  
+                    size=input_shape,
+                    device=self.device,
+                    dtype=torch.long
+                )
+            else:
+                x = torch.randn(*input_shape, device=self.device, dtype=torch.float32)
             print(f"✓ Input created: {x.shape}")
             print(f"  Memory after input: {torch.cuda.memory_allocated()/1e9:.2f} GB")
             
@@ -160,6 +169,14 @@ class EncoderTester:
             expected_output_shape=(B, 256, T, H_out, W_out),
             test_backward=False
         )
+
+        self.test_encoder(
+            SemanticSegmentationEncoder,
+            input_shape=(B, T, H, W),  
+            expected_output_shape=(B, 256, T, H_out, W_out),
+            test_backward=False
+        )
+
         
     
         print(f"\n{'='*60}")
